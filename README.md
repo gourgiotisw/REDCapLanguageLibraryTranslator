@@ -102,3 +102,7 @@ Contributions are welcome! If you have any suggestions or improvements, please s
 This project is licensed under the MIT License. See the LICENSE file for more details.
 
 
+## Acknowledgments
+- The googletrans package for providing translation capabilities.
+- The REDCap community for their support and resources.
+

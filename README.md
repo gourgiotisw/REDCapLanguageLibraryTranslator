@@ -75,22 +75,48 @@ The REDCap Language Library Translator is a Python script designed to translate 
 7. **Cleanup:**
    - The temporary translation file is deleted.
 
-## Installation
-
-To use this script, you need to have Python and the `googletrans` package installed. You can install the package using the following command:
+## From Source
+Clone the repository:
 
 ```sh
-pip install googletrans==4.0.0-rc1
+git clone https://github.com/yourusername/REDCapLLT.git
+
+cd REDCapLLT
+
+Create a virtual environment and activate it:
 ```
 
+```sh
+python -m venv env
+source env/bin/activate   # On Windows use `env\Scripts\activate`
+```
+
+### Install the dependencies:
+
+```sh
+
+pip install -r requirements.txt
+```
 ## Usage
-1. Save the script to a file named REDCap_Language_Library_Translator.py.
-2. Run the script using Python:
+
+### Command Line
+After installing the package, you can use the command line tool redcap_translate to translate your JSON files:
 
 ```sh
-python REDCap_Language_Library_Translator.py
+redcap_translate
 ```
-3. Follow the prompts to enter the full path to your JSON file and the desired language for translation.
+
+You will be prompted to enter the full path to the JSON file and the language to translate the variables to.
+
+### Python Script
+You can also use the package directly in your Python scripts:
+
+```python
+
+from redcapllt.translator import main
+```
+main()
+```
 
 ## Error Handling
 If any errors occur during the translation process, the script logs the corresponding key-value pairs into a separate file named {language}_errors.json within the subfolder. This allows users to review and address translation issues separately.

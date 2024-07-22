@@ -112,9 +112,7 @@ You will be prompted to enter the full path to the JSON file and the language to
 You can also use the package directly in your Python scripts:
 
 ```python
-
 from redcapllt.translator import main
-```
 main()
 ```
 

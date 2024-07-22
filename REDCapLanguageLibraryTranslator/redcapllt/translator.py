@@ -1,6 +1,7 @@
 import os
 import json
 from googletrans import Translator
+from tkinter import Tk, filedialog
 
 # List of supported languages in alphabetical order with their ISO 639 codes
 supported_languages = {
@@ -29,6 +30,7 @@ supported_languages = {
 }
 
 def get_language():
+    """Prompt the user to input a supported language and return its ISO 639 code."""
     while True:
         language = input("Please enter the language to translate the variables to: ").strip().lower()
         if language in supported_languages:
@@ -41,6 +43,7 @@ def get_language():
                 exit()
 
 def extract_defaults(json_data):
+    """Extract 'default' and 'translation' values from the JSON data."""
     extracted_data = {"uiTranslations": []}
     for item in json_data.get("uiTranslations", []):
         if "default" in item and "translation" in item:
@@ -50,7 +53,8 @@ def extract_defaults(json_data):
             })
     return extracted_data
 
-def translate_text(text, target_language):
+def translate_text(text, target_language, error_file_path):
+    """Translate a given text to the target language and log errors."""
     translator = Translator()
     try:
         if text:
@@ -58,32 +62,44 @@ def translate_text(text, target_language):
         else:
             translated_text = text
     except Exception as e:
-        print(f"Error translating text: {e}")
+        error_message = f"Error translating text '{text}': {e}"
+        print(error_message)
+        record_error(error_message, error_file_path)
         translated_text = text
     return translated_text
 
-def translate_large_file(file_path, target_language, chunk_size=5000):
+def translate_large_file(file_path, target_language, error_file_path, chunk_size=5000):
+    """Translate 'default' values in a large JSON file to the target language."""
     with open(file_path, 'r', encoding='utf-8') as file:
         json_data = json.load(file)
     
+    total_items = len(json_data.get("uiTranslations", []))
+    translated_count = 0
+
     for item in json_data.get("uiTranslations", []):
         if "default" in item:
             text = item["default"]
             if text:
+                # If the text is longer than the chunk size, split it into chunks for translation
                 if len(text) > chunk_size:
                     chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
-                    translated_text = ''.join(translate_text(chunk, target_language) for chunk in chunks)
+                    translated_text = ''.join(translate_text(chunk, target_language, error_file_path) for chunk in chunks)
                 else:
-                    translated_text = translate_text(text, target_language)
+                    translated_text = translate_text(text, target_language, error_file_path)
                 item["translation"] = translated_text
+            translated_count += 1
+            print(f"Translating item {translated_count} of {total_items}...")
 
+    # Save the translated data back to the JSON file
     with open(file_path, 'w', encoding='utf-8') as file:
         json.dump(json_data, file, ensure_ascii=False, indent=4)
 
 def update_translations(original_json, translated_json, language, language_code):
+    """Update the original JSON with translated values from the translated JSON."""
     original_data = original_json["uiTranslations"]
     translated_data = translated_json["uiTranslations"]
 
+    # Create a dictionary of default values from the original data for quick lookup
     original_defaults = {item["default"]: item for item in original_data if "default" in item}
     
     for item in translated_data:
@@ -91,27 +107,45 @@ def update_translations(original_json, translated_json, language, language_code)
         if default_text in original_defaults:
             original_defaults[default_text]["translation"] = item["translation"]
     
+    # Update display and key information in the original JSON
     original_json["display"] = language.capitalize()
     original_json["key"] = language_code
     
     return original_json
 
+def record_error(error_message, error_file_path):
+    """Record an error message to the error log file."""
+    with open(error_file_path, 'a', encoding='utf-8') as error_file:
+        error_file.write(error_message + '\n')
+
 def main():
-    # Ask the user for the location of the file
-    file_path = input("Please enter the full path to the JSON file: ")
+    """Main function to handle the translation process."""
+    # Initialize Tkinter and hide the root window
+    root = Tk()
+    root.withdraw()
+    
+    # Ask the user to select the JSON file
+    file_path = filedialog.askopenfilename(
+        title="Select the JSON file",
+        filetypes=(("JSON files", "*.json"), ("All files", "*.*"))
+    )
+    
+    if not file_path:
+        print("No file selected. Exiting.")
+        return
 
     # Get the language from the user
     language, language_code = get_language()
     print(f"Selected language: {language}")
 
-    # Load the JSON data
+    # Load the JSON data from the provided file path
     with open(file_path, 'r', encoding='utf-8') as file:
         json_data = json.load(file)
 
     # Extract the version number from the JSON data
     version = json_data.get("version", "unknown_version")
 
-    # Extract the default and translation values
+    # Extract the default and translation values from the JSON data
     extracted_data = extract_defaults(json_data)
 
     # Create a subfolder for the language and version
@@ -123,12 +157,15 @@ def main():
     # Define the output file name for the extracted data
     extracted_file = os.path.join(subfolder_path, f'{language}.json')
 
+    # Define the error log file name
+    error_file_path = os.path.join(subfolder_path, f'REDCap_{version}_{language}_Error.log')
+
     # Save the extracted data to a new JSON file
     with open(extracted_file, 'w', encoding='utf-8') as file:
         json.dump(extracted_data, file, ensure_ascii=False, indent=4)
 
     # Translate the "default" values in the new JSON file
-    translate_large_file(extracted_file, language_code)
+    translate_large_file(extracted_file, language_code, error_file_path)
 
     # Load the translated data
     with open(extracted_file, 'r', encoding='utf-8') as file:

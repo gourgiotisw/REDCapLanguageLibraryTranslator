@@ -1,4 +1,4 @@
-import os
+`import os
 import json
 from googletrans import Translator
 
@@ -29,7 +29,6 @@ supported_languages = {
 }
 
 def get_language():
-    """Prompt the user to input a supported language and return its ISO 639 code."""
     while True:
         language = input("Please enter the language to translate the variables to: ").strip().lower()
         if language in supported_languages:
@@ -42,7 +41,6 @@ def get_language():
                 exit()
 
 def extract_defaults(json_data):
-    """Extract 'default' and 'translation' values from the JSON data."""
     extracted_data = {"uiTranslations": []}
     for item in json_data.get("uiTranslations", []):
         if "default" in item and "translation" in item:
@@ -53,7 +51,6 @@ def extract_defaults(json_data):
     return extracted_data
 
 def translate_text(text, target_language):
-    """Translate a given text to the target language."""
     translator = Translator()
     try:
         if text:
@@ -66,37 +63,27 @@ def translate_text(text, target_language):
     return translated_text
 
 def translate_large_file(file_path, target_language, chunk_size=5000):
-    """Translate 'default' values in a large JSON file to the target language."""
     with open(file_path, 'r', encoding='utf-8') as file:
         json_data = json.load(file)
     
-    total_items = len(json_data.get("uiTranslations", []))
-    translated_count = 0
-
     for item in json_data.get("uiTranslations", []):
         if "default" in item:
             text = item["default"]
             if text:
-                # If the text is longer than the chunk size, split it into chunks for translation
                 if len(text) > chunk_size:
                     chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
                     translated_text = ''.join(translate_text(chunk, target_language) for chunk in chunks)
                 else:
                     translated_text = translate_text(text, target_language)
                 item["translation"] = translated_text
-            translated_count += 1
-            print(f"Translating item {translated_count} of {total_items}...")
 
-    # Save the translated data back to the JSON file
     with open(file_path, 'w', encoding='utf-8') as file:
         json.dump(json_data, file, ensure_ascii=False, indent=4)
 
 def update_translations(original_json, translated_json, language, language_code):
-    """Update the original JSON with translated values from the translated JSON."""
     original_data = original_json["uiTranslations"]
     translated_data = translated_json["uiTranslations"]
 
-    # Create a dictionary of default values from the original data for quick lookup
     original_defaults = {item["default"]: item for item in original_data if "default" in item}
     
     for item in translated_data:
@@ -104,29 +91,27 @@ def update_translations(original_json, translated_json, language, language_code)
         if default_text in original_defaults:
             original_defaults[default_text]["translation"] = item["translation"]
     
-    # Update display and key information in the original JSON
     original_json["display"] = language.capitalize()
     original_json["key"] = language_code
     
     return original_json
 
 def main():
-    """Main function to handle the translation process."""
-    # Ask the user for the location of the file and handle paths with or without quotes
-    file_path = input("Please enter the full path to the JSON file: ").strip().strip('"')
+    # Ask the user for the location of the file
+    file_path = input("Please enter the full path to the JSON file: ")
 
     # Get the language from the user
     language, language_code = get_language()
     print(f"Selected language: {language}")
 
-    # Load the JSON data from the provided file path
+    # Load the JSON data
     with open(file_path, 'r', encoding='utf-8') as file:
         json_data = json.load(file)
 
     # Extract the version number from the JSON data
     version = json_data.get("version", "unknown_version")
 
-    # Extract the default and translation values from the JSON data
+    # Extract the default and translation values
     extracted_data = extract_defaults(json_data)
 
     # Create a subfolder for the language and version

@@ -49,54 +49,54 @@ The REDCap Language Library Translator is a Python script designed to translate 
 
 
 
+# REDCap Language Library Translator
+
 ## How It Works
 
-1. **User Input:**
-   - The script prompts the user for the full path to the JSON file.
-   - The user specifies the target language for translation.
+### User Input:
+- The script prompts the user to select the JSON file using a graphical file dialog.
+- The user specifies the target language for translation.
 
-2. **Extract Default Values:**
-   - The script extracts all "default" and "translation" values from the JSON file.
+### Extract Default Values:
+- The script extracts all "default" and "translation" values from the JSON file.
 
-3. **Create Subfolder:**
-   - A subfolder is created based on the version of the JSON file and the target language.
+### Create Subfolder:
+- A subfolder is created based on the version of the JSON file and the target language.
 
-4. **Save Extracted Data:**
-   - The extracted data is saved into a new JSON file within the subfolder.
+### Save Extracted Data:
+- The extracted data is saved into a new JSON file within the subfolder.
 
-5. **Translate Values:**
-   - The script translates the "default" values in the new JSON file.
-   - If any translation errors occur, the corresponding key-value pairs are logged into a separate "errors" file.
+### Translate Values:
+- The script translates the "default" values in the new JSON file.
+- If any translation errors occur, the corresponding key-value pairs are logged into a separate "errors" file.
 
-6. **Update Original JSON:**
-   - The script updates the original JSON file with the new translated values.
-   - The `display` and `key` fields are updated to reflect the new language.
+### Update Original JSON:
+- The script updates the original JSON file with the new translated values.
+- The display and key fields are updated to reflect the new language.
 
-7. **Cleanup:**
-   - The temporary translation file is deleted.
+### Cleanup:
+- The temporary translation file is deleted.
 
-## Installation
-
-To use this script, you need to have Python and the `googletrans` package installed. You can install the package using the following command:
-
-```sh
-pip install googletrans==4.0.0-rc1
-```
 
 ## Usage
-1. Save the script to a file named REDCap_Language_Library_Translator.py.
-2. Run the script using Python:
+Command Line
+After installing the package, you can use the command line tool redcap_translate to translate your JSON files:
 
 ```sh
-python REDCap_Language_Library_Translator.py
+redcap_translate
 ```
-3. Follow the prompts to enter the full path to your JSON file and the desired language for translation.
 
-## Error Handling
-If any errors occur during the translation process, the script logs the corresponding key-value pairs into a separate file named {language}_errors.json within the subfolder. This allows users to review and address translation issues separately.
+You will be prompted to select the JSON file and enter the language to translate the variables to.
 
-## Contributions
+### Error Handling
+If any errors occur during the translation process, the script logs the corresponding key-value pairs into a separate file named {language}_Error.log within the subfolder. This allows users to review and address translation issues separately.
+
+### Contributions
 Contributions are welcome! If you have any suggestions or improvements, please submit a pull request or open an issue on GitHub.
 
-## License
+### License
 This project is licensed under the MIT License. See the LICENSE file for more details.
+
+### Acknowledgments
+The googletrans package for providing translation capabilities.
+The REDCap community for their support and resources.

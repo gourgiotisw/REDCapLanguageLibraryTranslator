@@ -13,7 +13,7 @@ The REDCap Language Library Translator is a Python script designed to translate 
 
 ## Supported Languages
 
-| Supported Languages        | Supported Languages        | Supported Languages        |
+| Supported Languages        |      |       |
 |----------------------------|----------------------------|----------------------------|
 | Afrikaans                  | Haitian Creole             | Pashto                     |
 | Amharic                    | Hebrew                     | Persian (Farsi)            |

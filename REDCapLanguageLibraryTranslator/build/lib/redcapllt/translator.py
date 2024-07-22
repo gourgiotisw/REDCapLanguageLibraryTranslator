@@ -1,4 +1,4 @@
-import os
+`import os
 import json
 from googletrans import Translator
 
